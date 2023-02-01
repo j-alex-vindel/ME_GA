@@ -1,16 +1,135 @@
 import gurobipy as gp
 from gurobipy import GRB
 from typing import List, Tuple,Type
+from collections import namedtuple
+from Met_Net import Metabolic_Network
 import copy
 
 
 Vector = List[float]
-Model = object
+Model = Type[object]
 Y = List[int]
-MN = object
+MN = Type[Metabolic_Network]
+Result = namedtuple('Result',['MetNet','Strategy','Vs','Time','Soltype'])
+K = Type[int]
 
 
-# Add single level reformulation MILP OptKnock
+def MILP_refor(network:Model=None,k:K=None,log:bool=True,speed:bool=False,threads:bool=False) -> Result:
+    '''
+    MILP_solve(network=network,k=k)
+        return Result[MetNet,Strategy,Flows,Time,Soltype]
+    '''
+    print(f'**** Solving ReacKnock k={k} ****')
+    print(f'# Variables (reactions in the network): {len(network.M)}')
+    print('Current Infeasibility:',network.infeas,sep=' -> ')
+    print('KO set: ',len(network.KO), ' reactions')
+    print(f"MN: {network.Name}")
+
+    lb = copy.deepcopy(network.LB)
+    lb[network.biomass] = network.minprod
+
+    m = gp.Model()
+
+    # Variables
+    v = m.addVars(network.M,lb=-GRB.INFINITY,ub=GRB.INFINITY,vtype=GRB.CONTINUOUS,name='v')
+    y = m.addVars(network.M,vtype=GRB.BINARY,name='y')
+
+    # Dual Variables
+    l = m.addVars(network.N,lb=-GRB.INFINITY,ub=GRB.INFINITY,vtype=GRB.CONTINUOUS,name='lambda')
+    a1 = m.addVars(network.M,lb=0,ub=GRB.INFINITY,vtype=GRB.CONTINUOUS,name='alpha1')
+    b1 = m.addVars(network.M,lb=0,ub=GRB.INFINITY,vtype=GRB.CONTINUOUS,name='beta1')
+    a2 = m.addVars(network.M,lb=0,ub=GRB.INFINITY,vtype=GRB.CONTINUOUS,name='alpha1')
+    b2 = m.addVars(network.M,lb=0,ub=GRB.INFINITY,vtype=GRB.CONTINUOUS,name='beta1')
+    a = m.addVars(network.M,lb=0,ub=GRB.INFINITY,vtype=GRB.CONTINUOUS,name='alpha')
+    b = m.addVars(network.M,lb=0,ub=GRB.INFINITY,vtype=GRB.CONTINUOUS,name='beta')
+    
+    # Objective
+    m.setObjective((1*v[network.chemical]),GRB.MAXIMIZE)
+
+    # Knapsack Constrs
+    m.addConstrs((y[j] == 1 for j in network.M if j not in network.KO), name='y_essentials')
+
+    m.addConstr(sum(1-y[j] for j in network.KO) == k, name='knapsack')
+
+    # Stoichimetric Constrs
+    m.addMConstr(network.S,v,'=',network.b,name='Stoi')
+    # m.addConstrs((gp.quicksum(network.S[i,j] * v[j] for j in network.M) == network.b[i] for i in network.N),name='Stoichiometry')
+    
+    # Dual Objective
+    m.addConstr((v[network.biomass] >= (sum(a1[j]*network.UB[j] - b1[j]*lb[j] for j in network.M)
+     + sum(a2[j]*network.UB[j] - b2[j]*lb[j] for j in network.M))),name='dual-objective')
+    
+    # Dual Constraints
+    m.addConstrs((gp.quicksum(network.S.transpose()[i,j]*l[j] for j in network.N)
+              - b[i]
+              + a[i] - b2[i] + a2[i]
+               == network.c[i] for i in network.M)
+             ,name='S_dual')
+
+    # m.addConstr((gp.quicksum(network.S.transpose()[network.biomas,j]*l[j] for j in network.N)
+    #         - b[network.biomas]
+    #         + a[network.biomas]
+    #         - b2[network.biomas] + a2[network.biomas] == 1), name='Sdual_t')
+    
+    # Linearization
+    m.addConstrs((a1[j] <= network.BM*y[j] for j in network.M),name='l1_a1')
+
+    m.addConstrs((a1[j] >= - network.BM*y[j] for j in network.M),name='l2_a1')
+
+    m.addConstrs((a1[j] <= a[j] + network.BM*(1-y[j]) for j in network.M),name='l3_a1')
+
+    m.addConstrs((a1[j] >= a[j] - network.BM*(1-y[j]) for j in network.M),name='l4_a1')
+
+    m.addConstrs((b1[j] <= network.BM*y[j] for j in network.M),name='l1_b1')
+
+    m.addConstrs((b1[j] >= -network.BM*y[j] for j in network.M),name='l2_b1')
+
+    m.addConstrs((b1[j] <= b[j] + network.BM*(1-y[j]) for j in network.M),name='l3_b1')
+
+    m.addConstrs((b1[j] >= b[j] - network.BM*(1-y[j]) for j in network.M),name='l4_b1')
+
+    # Bounds
+    m.addConstrs((lb[j]*y[j] <= v[j] for j in network.M), name='LB')
+    m.addConstrs((v[j] <= network.UB[j]*y[j] for j in network.M), name='UB')
+
+    m.addConstrs((lb[j] <= v[j] for j in network.M),name='lb')
+    m.addConstrs((v[j] <= network.UB[j] for j in network.M),name='ub')
+
+    m.Params.OptimalityTol = network.infeas
+    m.Params.IntFeasTol = network.infeas
+    m.Params.FeasibilityTol = network.infeas
+    # m.Params.NodefileStart = 0.5
+    m.Params.Presolve = 0
+    if not log: m.Params.OutputFlag = 0
+    if speed: m.Params.NodefileStart = 0.5
+    if threads: m.Threads = 2
+    m.optimize()
+
+    s = m.Runtime
+    if m.status == GRB.OPTIMAL:
+        chem = m.getObjective().getValue()
+        ys = [m.getVarByName('y[%d]'%j).x for j in network.M]
+        vs = [m.getVarByName('v[%d]'%j).x for j in network.M]
+        soltype = 'Optimal'
+        del_strat = [network.Rxn[i] for i in network.M if ys[i] <.5]
+
+    elif m.status == GRB.TIME_LIMIT:
+        ys = [m.getVarByName('my[%d]'%j).x for j in network.M]
+        vs = [m.getVarByName('mv[%d]'%j).x for j in network.M]
+        del_strat = [network.Rxn[i] for i in network.M if ys[i] <.5]
+        soltype = 'Time_limit'
+    
+    if m.status in (GRB.INFEASIBLE,GRB.INF_OR_UNBD,GRB.UNBOUNDED):
+        # print('Model status: *** INFEASIBLE or UNBOUNDED ***')
+        ys = ['$' for i in network.M]
+        vs = ['~' for i in network.M]
+        # print('Chemical:',vs[network.chemical],sep=' ^ ')
+        # print('Biomass:',vs[network.biomass],sep=' ^ ')
+        del_strat = 'all'
+
+    print('*'*4,' FINISHED!!! ','*'*4)
+
+    return  Result(network.Name,del_strat,ys, vs, s,soltype)
 
 def flux_balance_analysis(obj:MN) -> Vector:
     LB_WT = obj.LB.copy()

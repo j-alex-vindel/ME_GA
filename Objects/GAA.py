@@ -13,7 +13,7 @@ from collections import namedtuple
 Fit = namedtuple('Fitness',['Cost','Chemical','Biomass','True_chem'])
 Genome = List[int]
 Population = List[Individual]
-Model = object
+Model = Type[object]
 MN = Type[Metabolic_Network]
 MutationRate = int 
 Priority = List[float]
