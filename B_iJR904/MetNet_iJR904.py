@@ -58,4 +58,4 @@ ko = [rxn.index(i) for i in non_essentials]
 #======================== Metabolic Network Object ==============================================================
 
 
-MN = Metabolic_Network(S=S,LB=LB,UB=UB,Rxn=rxn,Met=met,KO=ko,Name=bacteria,biomass=biomass,chemical=chemical) 
+MN_ijr904 = Metabolic_Network(S=S,LB=LB,UB=UB,Rxn=rxn,Met=met,KO=ko,Name=bacteria,biomass=biomass,chemical=chemical) 
