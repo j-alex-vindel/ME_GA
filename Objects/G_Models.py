@@ -11,6 +11,7 @@ Model = Type[object]
 Y = List[int]
 MN = Type[Metabolic_Network]
 Result = namedtuple('Result',['MetNet','Strategy','Vs','Time','Soltype'])
+RMILP = namedtuple('RMILP',['Cost','Chem','Biom'])
 K = Type[int]
 
 
@@ -29,7 +30,9 @@ def MILP_Model(network:MN=None) -> Model:
     b2 = m.addVars(network.M,lb=0,ub=GRB.INFINITY,vtype=GRB.CONTINUOUS,name='b2')
     a = m.addVars(network.M,lb=0,ub=GRB.INFINITY,vtype=GRB.CONTINUOUS,name='a')
     b = m.addVars(network.M,lb=0,ub=GRB.INFINITY,vtype=GRB.CONTINUOUS,name='b')
-
+    
+    # Objective
+    m.setObjective((1*v[network.chemical]),GRB.MAXIMIZE)
     # Constraints
     # Stoichimetric Constrs
     m.addMConstr(network.S,v,'=',network.b,name='S')
@@ -55,6 +58,7 @@ def MILP_Model(network:MN=None) -> Model:
 
 def MILP_Solve(network:MN=None,y:Y=None,model:Model=None) -> Result:
     # Retrieve variables from model
+    v = [model.getVarByName('v[%s]'%a) for a in network.M]
     l = [model.getVarByName('l[%s]'%a) for a in network.N]
     a = [model.getVarByName('a[%s]'%a) for a in network.M]
     a1 = [model.getVarByName('a1[%s]'%a) for a in network.M]
@@ -64,16 +68,59 @@ def MILP_Solve(network:MN=None,y:Y=None,model:Model=None) -> Result:
     b2 = [model.getVarByName('b2[%s]'%a) for a in network.M]
     
     # Add Linerarization Constraints
+# Linearization
+    model.addConstrs((a1[j] <= network.BM*y[j] for j in network.M),name='l1_a1')
 
+    model.addConstrs((a1[j] >= - network.BM*y[j] for j in network.M),name='l2_a1')
+
+    model.addConstrs((a1[j] <= a[j] + network.BM*(1-y[j]) for j in network.M),name='l3_a1')
+
+    model.addConstrs((a1[j] >= a[j] - network.BM*(1-y[j]) for j in network.M),name='l4_a1')
+
+    model.addConstrs((b1[j] <= network.BM*y[j] for j in network.M),name='l1_b1')
+
+    model.addConstrs((b1[j] >= -network.BM*y[j] for j in network.M),name='l2_b1')
+
+    model.addConstrs((b1[j] <= b[j] + network.BM*(1-y[j]) for j in network.M),name='l3_b1')
+
+    model.addConstrs((b1[j] >= b[j] - network.BM*(1-y[j]) for j in network.M),name='l4_b1')
+
+    # Bounds
+    model.addConstrs((network.LB[j]*y[j] <= v[j] for j in network.M), name='LB')
+    model.addConstrs((v[j] <= network.UB[j]*y[j] for j in network.M), name='UB')
+
+    model.addConstrs((network.LB[j] <= v[j] for j in network.M),name='lb')
+    model.addConstrs((v[j] <= network.UB[j] for j in network.M),name='ub')
 
     # Add Parameters
-
+    model.Params.OptimalityTol = network.infeas
+    model.Params.IntFeasTol = network.infeas
+    model.Params.FeasibilityTol = network.infeas
+    model.Params.NodefileStart = 0.5
+    model.Params.Presolve = 0
+    model.update()
+    model.optimize()
 
     # Update
     # Solve
+    if model.status == GRB.OPTIMAL:
+        chem = model.getObjective().getValue()
+        vs = [model.getVarByName('v[%d]'%j).x for j in network.M]
+
+    elif model.status == GRB.TIME_LIMIT:
+        vs = [model.getVarByName('v[%d]'%j).x for j in network.M]
+    
+    if model.status in (GRB.INFEASIBLE,GRB.INF_OR_UNBD,GRB.UNBOUNDED):
+        # print('Model status: *** INFEASIBLE or UNBOUNDED ***')
+        vs = [-200 for i in network.M]
+    
+    cost = vs[network.chemical] + vs[network.biomass]
+    chem = vs[network.chemical]
+    biom = vs[network.biomass]
+    
+    return  RMILP(cost,chem,biom)
     
     
-    pass
 
 
 
