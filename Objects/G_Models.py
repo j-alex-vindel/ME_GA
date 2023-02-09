@@ -14,6 +14,49 @@ Result = namedtuple('Result',['MetNet','Strategy','Vs','Time','Soltype'])
 K = Type[int]
 
 
+def MILP_R_M(network:MN=None) -> Model:
+    '''
+    Returns a model object ready to be solved
+    ''' 
+    m = gp.Model("Single_Level_Reformulation")
+    #Variables
+    v = m.addVars(network.M,lb=-GRB.INFINITY,ub=GRB.INFINITY,vtype=GRB.CONTINUOUS,name='v')
+    # Dual Variables
+    l = m.addVars(network.N,lb=-GRB.INFINITY,ub=GRB.INFINITY,vtype=GRB.CONTINUOUS,name='l')
+    a1 = m.addVars(network.M,lb=0,ub=GRB.INFINITY,vtype=GRB.CONTINUOUS,name='l')
+    b1 = m.addVars(network.M,lb=0,ub=GRB.INFINITY,vtype=GRB.CONTINUOUS,name='b1')
+    a2 = m.addVars(network.M,lb=0,ub=GRB.INFINITY,vtype=GRB.CONTINUOUS,name='a2')
+    b2 = m.addVars(network.M,lb=0,ub=GRB.INFINITY,vtype=GRB.CONTINUOUS,name='b2')
+    a = m.addVars(network.M,lb=0,ub=GRB.INFINITY,vtype=GRB.CONTINUOUS,name='a')
+    b = m.addVars(network.M,lb=0,ub=GRB.INFINITY,vtype=GRB.CONTINUOUS,name='b')
+
+    # Constraints
+    # Stoichimetric Constrs
+    m.addMConstr(network.S,v,'=',network.b,name='S')
+    
+    # Dual Objective
+    m.addConstr((v[network.biomass] >= (sum(a1[j]*network.UB[j] - b1[j]*network.LB[j] for j in network.M)
+     + sum(a2[j]*network.UB[j] - b2[j]*network.LB[j] for j in network.M))),name='DO')
+    
+    # Dual Constraints
+    m.addConstrs((gp.quicksum(network.S.transpose()[i,j]*l[j] for j in network.N)
+              - b[i]
+              + a[i] - b2[i] + a2[i]
+               == network.c[i] for i in network.M)
+             ,name='SD')
+
+    m.addConstr(v[network.biomass] >= network.minprod, name='min_growth')
+
+    m.update()
+
+    model = m.copy()
+
+    return model
+
+
+
+
+
 def MILP_refor(network:Model=None,k:K=None,log:bool=True,speed:bool=False,threads:bool=False) -> Result:
     '''
     MILP_solve(network=network,k=k)
