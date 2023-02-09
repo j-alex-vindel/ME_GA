@@ -14,7 +14,7 @@ Result = namedtuple('Result',['MetNet','Strategy','Vs','Time','Soltype'])
 K = Type[int]
 
 
-def MILP_R_M(network:MN=None) -> Model:
+def MILP_Model(network:MN=None) -> Model:
     '''
     Returns a model object ready to be solved
     ''' 
@@ -23,7 +23,7 @@ def MILP_R_M(network:MN=None) -> Model:
     v = m.addVars(network.M,lb=-GRB.INFINITY,ub=GRB.INFINITY,vtype=GRB.CONTINUOUS,name='v')
     # Dual Variables
     l = m.addVars(network.N,lb=-GRB.INFINITY,ub=GRB.INFINITY,vtype=GRB.CONTINUOUS,name='l')
-    a1 = m.addVars(network.M,lb=0,ub=GRB.INFINITY,vtype=GRB.CONTINUOUS,name='l')
+    a1 = m.addVars(network.M,lb=0,ub=GRB.INFINITY,vtype=GRB.CONTINUOUS,name='a1')
     b1 = m.addVars(network.M,lb=0,ub=GRB.INFINITY,vtype=GRB.CONTINUOUS,name='b1')
     a2 = m.addVars(network.M,lb=0,ub=GRB.INFINITY,vtype=GRB.CONTINUOUS,name='a2')
     b2 = m.addVars(network.M,lb=0,ub=GRB.INFINITY,vtype=GRB.CONTINUOUS,name='b2')
@@ -53,7 +53,27 @@ def MILP_R_M(network:MN=None) -> Model:
 
     return model
 
+def MILP_Solve(network:MN=None,y:Y=None,model:Model=None) -> Result:
+    # Retrieve variables from model
+    l = [model.getVarByName('l[%s]'%a) for a in network.N]
+    a = [model.getVarByName('a[%s]'%a) for a in network.M]
+    a1 = [model.getVarByName('a1[%s]'%a) for a in network.M]
+    a2 = [model.getVarByName('a2[%s]'%a) for a in network.M]
+    b = [model.getVarByName('b[%s]'%a) for a in network.M]
+    b1 = [model.getVarByName('b1[%s]'%a) for a in network.M]
+    b2 = [model.getVarByName('b2[%s]'%a) for a in network.M]
+    
+    # Add Linerarization Constraints
 
+
+    # Add Parameters
+
+
+    # Update
+    # Solve
+    
+    
+    pass
 
 
 
