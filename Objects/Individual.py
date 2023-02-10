@@ -10,12 +10,12 @@ Genome = List[int]
 class Individual:
     Gene: Genome = None
     Cost: float = None
-    Fitness:namedtuple =  None
+    Result:namedtuple =  None
     Bio: float = None
     Chem: float = None
-    TrueBio: float = None
-    TrueChem: float = None
-    Strat: List[str] = None
+    # TrueBio: float = None
+    # TrueChem: float = None
+    # Strat: List[str] = None
 
 Population = List[Individual]
 
