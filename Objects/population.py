@@ -17,3 +17,6 @@ class Population(object):
         """Creates a new population that consists of
         old and new individuals"""
         self.population.extend(new_individuals)
+
+    def append(self, new_individual):
+        self.population.append(new_individual)
