@@ -100,7 +100,8 @@ def MILP_Solve(network:MN=None,y:Y=None,model:Model=None) -> Result:
     model.Params.IntFeasTol = network.infeas
     model.Params.FeasibilityTol = network.infeas
     model.Params.NodefileStart = 0.5
-    model.Params.Presolve = 0
+    # model.Params.Presolve = 0
+    model.Params.OutputFlag = 0
     model.update()
     model.optimize()
 
