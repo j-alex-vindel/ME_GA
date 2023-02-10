@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List, Any, Tuple
+from typing import List, Any, Tuple, Type
 from collections import namedtuple
 from dataclasses_json import dataclass_json
 
@@ -13,13 +13,12 @@ class Individual(object):
 
         self.Gene: Genome = None
         self.Cost: float = None
-        self.Bio: float = None
+        self.Biom: float = None
         self.Chem: float = None
-        self.rank = None
-        self.crowding_distance = None
-        self.dominated_solutions = None
-        self.features = None
-        self.objectives = None
+        self.rank:int = None
+        self.crowding_distance:float = None
+        self.dominated_solutions:Type[List] = None
+        self.Obj:Type[List] = None
 
     def __eq__(self, other):
         if isinstance(self,other.__class__):

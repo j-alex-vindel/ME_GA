@@ -18,13 +18,13 @@ def GA_Run(Network:MN=None,Npop:int=None,MIModel:Model=None,K:int=None):
     # Initial Solutions
     for i in range(Npop):
         pop[i].Gene = Gene_Gen(Network=Network,K=K)
-        pop[i].Result = MILP_Solve(network=Network,y=pop[i].Gene,model=MIModel)
-        pop[i].Cost = pop[i].Result.Cost
-        pop[i].Bio = pop[i].Result.Biom
-        pop[i].Chem = pop[i].Result.Chem
+        Result = MILP_Solve(network=Network,y=pop[i].Gene,model=MIModel)
+        pop[i].Cost = Result.Cost
+        pop[i].Biom = Result.Biom
+        pop[i].Chem = Result.Chem
+        pop[i].Obj = [pop[i].Biom,pop[i].Chem]
 
     # s_pop = sorted(pop,key=lambda x: x.Cost,reverse=True)
-
     
     
     pass
