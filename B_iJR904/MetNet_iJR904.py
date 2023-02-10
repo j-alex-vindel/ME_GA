@@ -7,7 +7,7 @@ from Met_Net import Metabolic_Network
 from pymatreader import read_mat
 
 rootname = sys.argv[0]
-bacteria = rootname[7:len(rootname)-3]
+bacteria = 'iJR904'
 
 #========================= Access Data ========================================================================= 
 data = read_mat(f"../B_{bacteria}/Data/{bacteria}.mat")

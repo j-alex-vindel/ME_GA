@@ -57,6 +57,9 @@ def MILP_Model(network:MN=None) -> Model:
     return model
 
 def MILP_Solve(network:MN=None,y:Y=None,model:Model=None) -> Result:
+    '''
+    Takes a y vector to solve the milp model
+    '''
     # Retrieve variables from model
     v = [model.getVarByName('v[%s]'%a) for a in network.M]
     l = [model.getVarByName('l[%s]'%a) for a in network.N]
@@ -68,7 +71,7 @@ def MILP_Solve(network:MN=None,y:Y=None,model:Model=None) -> Result:
     b2 = [model.getVarByName('b2[%s]'%a) for a in network.M]
     
     # Add Linerarization Constraints
-# Linearization
+    # Linearization
     model.addConstrs((a1[j] <= network.BM*y[j] for j in network.M),name='l1_a1')
 
     model.addConstrs((a1[j] >= - network.BM*y[j] for j in network.M),name='l2_a1')
