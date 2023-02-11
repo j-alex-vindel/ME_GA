@@ -43,3 +43,4 @@ def Uni_Cross(Pa:Type[Individual]=None,Pb:Type[Individual]=None) ->Tuple[Type[In
     c1.Gene = [uni_alpha[i]*Pa.Gene[i] + (1-uni_alpha[i])*Pb.Gene[i] for i in range(lenght)]
     c2.Gene = [(1-uni_alpha[i]*Pa.Gene[i]) + uni_alpha[i]*Pb.Gene[i] for i in range(lenght)]
     return c1,c2
+
