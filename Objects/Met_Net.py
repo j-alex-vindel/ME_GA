@@ -47,6 +47,7 @@ class Metabolic_Network:
         self.b = np.array([0 for i in self.N])
         self.c = np.array([1 if i == self.biomass else 0 for i in self.M])
         self.FBA = wildtype_FBA(self)
+        self.target = .5
 
     @property
     def target(self):
