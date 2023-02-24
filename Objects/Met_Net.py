@@ -28,8 +28,7 @@ class Metabolic_Network:
                  chemical: Index = None, 
                  infeas:float = 1e-6, 
                  time_limit: int = 1000, 
-                 BM: Big_M = 1000, 
-                 target: Target = .5):
+                 BM: Big_M = 1000):
         
         self.S = S
         self.LB = LB
@@ -43,10 +42,23 @@ class Metabolic_Network:
         self.infeas = infeas
         self.time_limit = time_limit
         self.BM = BM
-        self.target = target  
         self.M = set_constructor(self.Rxn)
         self.N = set_constructor(self.Met)
         self.b = np.array([0 for i in self.N])
         self.c = np.array([1 if i == self.biomass else 0 for i in self.M])
         self.FBA = wildtype_FBA(self)
-        self.minprod = target*self.FBA[self.biomass]
+
+    @property
+    def target(self):
+        return self._target
+
+    @target.setter
+    def target(self,target:Target=.5):
+        self._minprod = None
+        self._target = target
+
+    @property
+    def minprod(self):
+        if self._minprod is None:
+            self._minprod = self._target*self.FBA[self.biomass]
+        return self._minprod
