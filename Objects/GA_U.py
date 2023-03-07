@@ -4,9 +4,9 @@ import random
 from typing import List,Type,Tuple
 from G_Models import MILP_Model, MILP_Solve
 from Individual import Individual
-from Met_Net import Metabolic_Network
+from Met_Net import Met_Net
 
-MN = Type[Metabolic_Network]
+MN = Type[Met_Net]
 Genome = List[int]
 Model = Type[MILP_Model]
 
