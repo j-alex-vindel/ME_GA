@@ -14,7 +14,7 @@ Big_M = NewType('Big M', int)
 Target = NewType('Prod Target %',float)
 
 
-class Metabolic_Network:
+class Met_Net:
 
     def __init__(self, 
                  S:S_Matrix = None, 
@@ -46,7 +46,6 @@ class Metabolic_Network:
         self.N = set_constructor(self.Met)
         self.b = np.array([0 for i in self.N])
         self.c = np.array([1 if i == self.biomass else 0 for i in self.M])
-        self.FBA = wildtype_FBA(self)
         self.target = .5
 
     @property
@@ -63,3 +62,14 @@ class Metabolic_Network:
         if self._minprod is None:
             self._minprod = self._target*self.FBA[self.biomass]
         return self._minprod
+    
+    @property
+    def FBA(self):
+        if self._FBA is None:
+            self._FBA = wildtype_FBA(self)
+        return self._FBA
+    @property
+    def FVA(self):
+        if self._FVA is None:
+            self._FVA = wildtype_FBA(self,wildtype=False,mutant=True)
+        return self._FVA
