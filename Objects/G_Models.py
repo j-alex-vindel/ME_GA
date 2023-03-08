@@ -2,14 +2,14 @@ import gurobipy as gp
 from gurobipy import GRB
 from typing import List, Tuple,Type
 from collections import namedtuple
-from Met_Net import Metabolic_Network
+from Met_Net import Met_Net
 import copy
 
 
 Vector = List[float]
 Model = Type[object]
 Y = List[int]
-MN = Type[Metabolic_Network]
+MN = Type[Met_Net]
 Result = namedtuple('Result',['MetNet','Strategy','Vs','Time','Soltype'])
 RMILP = namedtuple('RMILP',['Cost','Chem','Biom'])
 K = Type[int]
