@@ -6,7 +6,7 @@ from random import randint
 from typing import List, Tuple,Type
 from Individual import Individual, Out_Result
 from G_Models import mobjective_model,mobjective_solve,true_vij
-from Met_Net import Metabolic_Network
+from Met_Net import Met_Net
 from utility_functions import func_timer
 from collections import namedtuple
 
@@ -14,7 +14,7 @@ Fit = namedtuple('Fitness',['Cost','Chemical','Biomass','True_chem'])
 Genome = List[int]
 Population = List[Individual]
 Model = Type[object]
-MN = Type[Metabolic_Network]
+MN = Type[Met_Net]
 MutationRate = int 
 Priority = List[float]
 Weights = List[float]
