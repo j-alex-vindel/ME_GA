@@ -15,6 +15,7 @@ class Individual(object):
         self.rank:int = None
         self.crowding_distance:float = None
         self.dominated_solutions:Type[List] = None
+        self.dominated_count:int = None
         self.biomass:float = None
         self.chemical:float = None
     

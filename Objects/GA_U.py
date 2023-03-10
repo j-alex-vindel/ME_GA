@@ -3,7 +3,7 @@ import copy
 import random
 from typing import List,Type,Tuple
 from G_Models import MILP_Model, MILP_Solve
-from GA_Individual import Individual
+from GA_Ind import Individual
 from Met_Net import Met_Net
 from utility_functions import genecheck
 
@@ -14,7 +14,7 @@ Model = Type[MILP_Model]
 
 def GA_Run(Network:MN=None,Npop:int=None,MIModel:Model=None,K:int=None):
     # Create population
-    pop = [Individual() for _ in range(Npop)]
+    pop = [Individual() for _ in range(Npop)]       
     
     # Initial Solutions
     for i in range(Npop):

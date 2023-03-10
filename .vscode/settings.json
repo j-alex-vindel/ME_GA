@@ -1,5 +1,6 @@
 {
     "python.analysis.extraPaths": [
-        "./Objects"
+        "./Objects",
+        "./B_iJO1366"
     ]
 }

@@ -122,7 +122,7 @@ def MILP_Solve(network:MN=None,y:Y=None,model:Model=None) -> Result:
     chem = vs[network.chemical]
     biom = vs[network.biomass]
     
-    return  RMILP(cost,chem,biom)
+    return  biom,chem
     
     
 def flux_balance_analysis(obj:MN) -> Vector:

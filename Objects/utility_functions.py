@@ -3,7 +3,7 @@ from typing import List,NewType
 import gurobipy as gp
 from gurobipy import GRB
 import copy
-
+import random
 
 FBA = NewType('FBA_vector',List[float])
 
@@ -33,6 +33,13 @@ def genecheck(f):
                 v = None
         return v
     return wrapper
+
+@genecheck
+def gene_generator(network,k):
+    rk = [random.choice(network.KO) for i in range(k)]
+    li = [0 if i in rk else 1 for i in network.M]
+    return li,k
+
 
 
 def wildtype_FBA(obj,wildtype:bool=True,mutant:bool=False)->FBA:

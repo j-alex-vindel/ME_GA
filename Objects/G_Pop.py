@@ -1,5 +1,5 @@
 
-class Population(object):
+class GA_Pop(object):
     """ Population representation - a group of individuals
         populations can merge together"""
     def __init__(self):
