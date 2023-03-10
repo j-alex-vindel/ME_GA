@@ -5,20 +5,27 @@ from dataclasses_json import dataclass_json
 
 
 Genome = List[int]
-
+OBJ = namedtuple('OBJ',['chemical','biomass'])
 
 class Individual(object):
     
     def __init__(self):
 
         self.Gene: Genome = None
-        self.Cost: float = None
-        self.Biom: float = None
-        self.Chem: float = None
         self.rank:int = None
         self.crowding_distance:float = None
         self.dominated_solutions:Type[List] = None
-        self.Obj:Type[List] = None
+        self.biomass:float = None
+        self.chemical:float = None
+    
+    @property
+    def objectives(self):
+        self._objectives = (self.chemical,self.biomass)
+        return self._objectives
+    @property
+    def cost(self):
+        self._cost = self.chemical + self.biomass
+        return self._cost    
 
     def __eq__(self, other):
         if isinstance(self,other.__class__):

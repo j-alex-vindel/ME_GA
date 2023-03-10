@@ -3,8 +3,9 @@ import copy
 import random
 from typing import List,Type,Tuple
 from G_Models import MILP_Model, MILP_Solve
-from Individual import Individual
+from GA_Individual import Individual
 from Met_Net import Met_Net
+from utility_functions import genecheck
 
 MN = Type[Met_Net]
 Genome = List[int]
@@ -19,20 +20,23 @@ def GA_Run(Network:MN=None,Npop:int=None,MIModel:Model=None,K:int=None):
     for i in range(Npop):
         pop[i].Gene = Gene_Gen(Network=Network,K=K)
         Result = MILP_Solve(network=Network,y=pop[i].Gene,model=MIModel)
-        pop[i].Cost = Result.Cost
-        pop[i].Biom = Result.Biom
-        pop[i].Chem = Result.Chem
-        pop[i].Obj = [pop[i].Biom,pop[i].Chem]
+        pop[i].biomass = Result.Biom
+        pop[i].chemical = Result.Chem
+        
 
     # s_pop = sorted(pop,key=lambda x: x.Cost,reverse=True)
     
     
     pass
 
+
+
+
+@genecheck
 def Gene_Gen(Network:MN=None,K:int=None) -> Genome:
     rk = [random.choice(Network.KO) for i in range(K)]
     li = [0 if i in rk else 1 for i in Network.M]
-    return li
+    return li,K
 
 def Uni_Cross(Pa:Type[Individual]=None,Pb:Type[Individual]=None) ->Tuple[Type[Individual],Type[Individual]]:
     lenght = len(Pa.Gene)
