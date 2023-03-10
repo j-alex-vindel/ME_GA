@@ -22,6 +22,19 @@ def func_timer(f):
         return v
     return wrapper
 
+def genecheck(f):
+    def wrapper(*args,**kwargs):
+        v = None
+        while v == None:
+            v,k = f(*args,**kwargs)
+            if sum(v) == len(v) - k:
+                v = v
+            else:
+                v = None
+        return v
+    return wrapper
+
+
 def wildtype_FBA(obj,wildtype:bool=True,mutant:bool=False)->FBA:
     LB_wt = copy.deepcopy(obj.LB)
     UB_wt = copy.deepcopy(obj.UB)
