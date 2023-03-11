@@ -1,4 +1,6 @@
 from G_Pop import GA_Pop
+import random
+import copy
 
 class GA_utils:
 
@@ -93,8 +95,14 @@ class GA_utils:
 
 
     def __crossover(self,individual1,individual2):
-        #write my crossover
-        pass
+        length = len(individual1.Gene)
+        c1 = copy.deepcopy(individual1)
+        c2 = copy.deepcopy(individual2)
+
+        uni_alpha = [random.randint(0,1) for _ in range(length)]
+        c1.Gene = [uni_alpha[i]*individual1.Gene[i] + (1-uni_alpha[i])*individual2.Gene[i] for i in range(length)]
+        c2.Gene = [(1-uni_alpha[i]*individual1.Gene[i]) + uni_alpha[i]*individual2.Gene[i] for i in range(length)]
+        return c1,c2
 
     def __tournament(self,population):
         #write my tournament selection
@@ -105,5 +113,11 @@ class GA_utils:
         pass
 
     def __gencheck(self,child):
-        # something has to ensure that sum(Gene) = len(Gene) - k
+        m_child = copy.deepcopy(child)
+        if sum(m_child.Gene) != len(m_child.Gene) - self.problem.K:
+            rk = [random.choice(self.problem.metnet.M) for _ in range(self.problem.K)]
+            li = [0 if i in rk else 1 for i in self.problem.metnet.M]
+            m_child.Gene = li
+        return m_child
+        
         pass
