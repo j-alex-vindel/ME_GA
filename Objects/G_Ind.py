@@ -7,7 +7,7 @@ from dataclasses_json import dataclass_json
 Genome = List[int]
 OBJ = namedtuple('OBJ',['chemical','biomass'])
 
-class Individual(object):
+class GA_Ind(object):
     
     def __init__(self):
 
