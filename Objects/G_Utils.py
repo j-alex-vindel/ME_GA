@@ -60,6 +60,50 @@ class GA_utils:
                 if scale ==0 :scale =1
                 for i in range(1,solutions_num - 1):
                     front[i].crowding_distance += (front[i+1].objectives[m] - front[i-1].objectives[m])/scale
+    
+    def crowding_opr(self,individual, other_individual):
+        if (individual.rank < other_individual.rank) or \
+            ((individual.rank == other_individual.ranks) and (individual.crowding_distance > other_individual.crowding_distance)):
+            return 1
+        else:
+            return -1
+
+    def create_children(self,population):
+        children = []
+        while len(children) < len(population):
+            parent1 = self.__tournament(population)
+            parent2 = parent1
+            while parent1 == parent2:
+                parent2 = self.__tournament(population)
+            child1,child2 = self.__crossover(parent1,parent2)
+
+            self.__mutate(child1)
+            self.__mutate(child2)
+            # check conditions
+            self.__gencheck(child1)
+            self.__gencheck(child2)
+
+            self.problem.calc_obj(child1)
+            self.problem.calc_obj(child2)
+            children.append(child1)
+            children.append(child2)
         
+        return children
 
 
+
+    def __crossover(self,individual1,individual2):
+        #write my crossover
+        pass
+
+    def __tournament(self,population):
+        #write my tournament selection
+        pass        
+
+    def __mutate(self,child):
+        # write my mutation
+        pass
+
+    def __gencheck(self,child):
+        # something has to ensure that sum(Gene) = len(Gene) - k
+        pass
