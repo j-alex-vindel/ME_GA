@@ -42,9 +42,9 @@ class GA_Utils:
             temp = []
             for individual in population.fronts[i]:
                 for other_individual in individual.dominated_solutions:
-                    other_individual.domination_count -= 1
+                    other_individual.dominated_count -= 1
 
-                    if other_individual.domination_count == 0:
+                    if other_individual.dominated_count == 0:
                         other_individual.rank = i+1
                         temp.append(other_individual)
             i = i + 1
