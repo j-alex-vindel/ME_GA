@@ -1,17 +1,19 @@
 from G_Pop import GA_Pop
 import random
 import copy
+from utility_functions import func_name_print
 
 class GA_Utils:
 
-    def __init__(self,problem,num_ind=100,num_par_tour=2,tour_prob=.9,mutation_rate=1):
+    def __init__(self,problem,num_ind=30,num_par_tour=2,tour_prob=.9,mutation_rate=1):
         self.num_ind = num_ind
         self.problem = problem
         self.num_par_tour = num_par_tour
         self.tour_prob = tour_prob
         self.mutation_rate = mutation_rate
-        pass
+    
 
+    @func_name_print    
     def create_pop(self):
         population = GA_Pop()
         for _ in range(self.num_ind):
@@ -20,6 +22,7 @@ class GA_Utils:
             population.append(individual)
         return population
     
+    @func_name_print
     def fast_nondom_sort(self,population):
         population.fronts = [[]]
 
@@ -50,6 +53,7 @@ class GA_Utils:
             i = i + 1
             population.fronts.append(temp)
 
+    @func_name_print
     def crowding_dist(self,front):
         if len(front) > 0:
             solutions_num = len(front)
@@ -72,7 +76,8 @@ class GA_Utils:
             return 1
         else:
             return -1
-
+        
+    @func_name_print
     def create_children(self,population):
         children = []
         while len(children) < len(population):
