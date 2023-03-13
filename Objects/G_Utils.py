@@ -61,7 +61,7 @@ class GA_Utils:
                 front[0].crowding_distance = 10**9
                 front[solutions_num-1].crowding_distance = 10**9
                 m_values = [individual.objectives[m] for individual in front]
-                scale = max[m_values] - min(m_values)
+                scale = max(m_values) - min(m_values)
                 if scale ==0 :scale =1
                 for i in range(1,solutions_num - 1):
                     front[i].crowding_distance += (front[i+1].objectives[m] - front[i-1].objectives[m])/scale
