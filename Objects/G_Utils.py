@@ -24,7 +24,7 @@ class GA_Utils:
         population.fronts = [[]]
 
         for individual in population:
-            individual.dominated_cout = 0
+            individual.dominated_count = 0
             individual.dominated_solutions = []
             for other_individual in population:
                 if individual.dominates(other_individual):
@@ -33,7 +33,7 @@ class GA_Utils:
                 elif other_individual.dominates(individual):
                     individual.dominated_count += 1
             
-            if individual.dominated_count ==0:
+            if individual.dominated_count == 0:
                 individual.rank = 0
                 population.fronts[0].append(individual)
 

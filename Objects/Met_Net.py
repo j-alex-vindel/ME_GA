@@ -47,6 +47,8 @@ class Met_Net:
         self.b = np.array([0 for i in self.N])
         self.c = np.array([1 if i == self.biomass else 0 for i in self.M])
         self.target = .5
+        self.FBA = wildtype_FBA(self)
+        self.FVA = wildtype_FBA(self,wildtype=False,mutant=True)
 
     @property
     def target(self):
@@ -63,13 +65,13 @@ class Met_Net:
             self._minprod = self._target*self.FBA[self.biomass]
         return self._minprod
     
-    @property
-    def FBA(self):
-        if self._FBA is None:
-            self._FBA = wildtype_FBA(self)
-        return self._FBA
-    @property
-    def FVA(self):
-        if self._FVA is None:
-            self._FVA = wildtype_FBA(self,wildtype=False,mutant=True)
-        return self._FVA
+    # @property
+    # def FBA(self):
+    #     if self._FBA is None:
+    #         self._FBA = wildtype_FBA(self)
+    # #     return self._FBA
+    # @property
+    # def FVA(self):
+    #     if self._FVA is None:
+    #         self._FVA = wildtype_FBA(self,wildtype=False,mutant=True)
+    #     return self._FVA
