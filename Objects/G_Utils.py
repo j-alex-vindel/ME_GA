@@ -2,14 +2,14 @@ from G_Pop import GA_Pop
 import random
 import copy
 
-class GA_utils:
+class GA_Utils:
 
     def __init__(self,problem,num_ind=100,num_par_tour=2,tour_prob=.9,mutation_rate=1):
         self.num_ind = num_ind
         self.problem = problem
         self.num_par_tour = num_par_tour
         self.tour_prob = tour_prob
-        self.mutation_rate = 1
+        self.mutation_rate = mutation_rate
         pass
 
     def create_pop(self):
