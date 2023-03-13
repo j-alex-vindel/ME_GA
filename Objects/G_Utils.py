@@ -68,7 +68,7 @@ class GA_Utils:
     
     def crowding_opr(self,individual, other_individual):
         if (individual.rank < other_individual.rank) or \
-            ((individual.rank == other_individual.ranks) and (individual.crowding_distance > other_individual.crowding_distance)):
+            ((individual.rank == other_individual.rank) and (individual.crowding_distance > other_individual.crowding_distance)):
             return 1
         else:
             return -1
@@ -132,6 +132,6 @@ class GA_Utils:
         return m_child
         
     def __choose_w_prob(self,prob):
-        if random.random <= prob:
+        if random.random() <= prob:
             return True
         return False
