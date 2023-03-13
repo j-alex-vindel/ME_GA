@@ -4,9 +4,12 @@ import copy
 
 class GA_utils:
 
-    def __init__(self,problem,num_ind,num_par_tour,):
+    def __init__(self,problem,num_ind=100,num_par_tour=2,tour_prob=.9,mutation_rate=1):
         self.num_ind = num_ind
         self.problem = problem
+        self.num_par_tour = num_par_tour
+        self.tour_prob = tour_prob
+        self.mutation_rate = 1
         pass
 
     def create_pop(self):
@@ -92,8 +95,6 @@ class GA_utils:
         
         return children
 
-
-
     def __crossover(self,individual1,individual2):
         length = len(individual1.Gene)
         c1 = copy.deepcopy(individual1)
@@ -105,12 +106,22 @@ class GA_utils:
         return c1,c2
 
     def __tournament(self,population):
-        #write my tournament selection
-        pass        
+        participants = random.sample(population.population,self.num_par_tour)
+        best = None
+        for participant in participants:
+            if best is None or (
+                self.crowding_opr(participant,best) == 1 and self.__choose_w_prob(self.tour_prob)):
+                best = participant
+        return participant
+                            
 
     def __mutate(self,child):
-        # write my mutation
-        pass
+        mc = copy.deepcopy(child)
+
+        mutation_index = [random.choice(self.problem.metnet.M) for _ in range(self.mutation_rate)]
+        m_gene = [child.Gene[i] if i not in mutation_index else 1-child.Gene[i] for i in self.problem.metnet.M]
+        mc.Gene = m_gene
+        return mc
 
     def __gencheck(self,child):
         m_child = copy.deepcopy(child)
@@ -120,4 +131,7 @@ class GA_utils:
             m_child.Gene = li
         return m_child
         
-        pass
+    def __choose_w_prob(self,prob):
+        if random.random <= prob:
+            return True
+        return False
