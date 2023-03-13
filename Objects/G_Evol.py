@@ -1,5 +1,6 @@
 from G_Utils import GA_Utils
 from G_Pop import GA_Pop
+from tqdm import tqdm
 
 class GA_Evol:
 
@@ -11,4 +12,32 @@ class GA_Evol:
         self.num_ind = num_ind
 
     def evol(self):
-        pass    
+        self.population = self.utils.create_pop()
+        self.utils.fast_nondom_sort(self.population)
+        for front in self.population.fronts:
+            self.utils.crowding_dist(front)
+
+        children = self.utils.create_children(self.population)
+        returned_population = None
+
+        for i in tqdm(range(self.num_gen)):
+            self.population.extend(children)
+            self.utils.fast_nondom_sort(self.population)
+            new_population = GA_Pop()
+            front_num = 0
+
+            while len(new_population) + len(self.population.fronts[front_num]) <= self.num_ind:
+                self.utils.crowding_dist(self.population.fronts[front_num])
+                new_population.extend(self.population.fronts[front_num])
+                front_num += 1
+            self.utils.crowding_dist(self.population.fronts[front_num])
+            self.population.fronts[front_num].sort(key=lambda individual: individual.crowding_distance, reverse=True)
+            new_population.extend(self.population.fronts[front_num][0:self.num_of_individuals - len(new_population)])
+            returned_population = self.population
+            self.population = new_population
+            self.utils.fast_nondom_sort(self.population)
+            for front in self.population.fronts:
+                self.utils.crowding_dist(front)
+            children = self.utils.create_children(self.population)
+        
+        return returned_population.fronts[0]
