@@ -27,7 +27,12 @@ class GA_Ind(object):
     @property
     def cost(self):
         self._cost = self.chemical + self.biomass
-        return self._cost    
+        return self._cost  
+    @property
+    def genindex(self):
+        if self.Gene != None:
+            self._geneindex = [i for i,gene in enumerate(self.Gene) if gene == 0]
+        return self._geneindex
 
     def __eq__(self, other):
         if isinstance(self,other.__class__):

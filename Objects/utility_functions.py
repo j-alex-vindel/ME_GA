@@ -11,7 +11,7 @@ FBA = NewType('FBA_vector',List[float])
 def func_name_print(f):
     name = f.__name__
     def wrapper(*args,**kwargs):
-        print(f"Running >> {name}")
+        print(f"{' '*2}Running >> {name}")
         v = f(*args,**kwargs)
         return v
     return wrapper
@@ -43,9 +43,8 @@ def set_constructor(list:List[str]) -> List[int]:
         return [i for i in range(len(list))]
 
 
-@genecheck
 def gene_generator(network,k):
-    rk = [random.choice(network.KO) for i in range(k)]
+    rk = random.sample(network.KO,k) 
     li = [0 if i in rk else 1 for i in network.M]
     return li,k
 
