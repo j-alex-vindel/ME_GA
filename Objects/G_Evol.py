@@ -12,7 +12,6 @@ class GA_Evol:
         self.on_gen_finished = []
         self.num_ind = num_ind
 
-    @func_name_print
     def evol(self):
         self.population = self.utils.create_pop()
         self.utils.fast_nondom_sort(self.population)

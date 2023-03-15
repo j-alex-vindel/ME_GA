@@ -28,11 +28,12 @@ class GA_Ind(object):
     def cost(self):
         self._cost = self.chemical + self.biomass
         return self._cost  
+
     @property
-    def genindex(self):
+    def gene_index(self):
         if self.Gene != None:
-            self._geneindex = [i for i,gene in enumerate(self.Gene) if gene == 0]
-        return self._geneindex
+            self._index = [i for i,gene in enumerate(self.Gene) if gene == 0]
+        return self._index
 
     def __eq__(self, other):
         if isinstance(self,other.__class__):

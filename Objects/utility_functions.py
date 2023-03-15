@@ -43,12 +43,10 @@ def set_constructor(list:List[str]) -> List[int]:
         return [i for i in range(len(list))]
 
 
-def gene_generator(network,k):
+def gene_generator(network=None,k:int=None):
     rk = random.sample(network.KO,k) 
     li = [0 if i in rk else 1 for i in network.M]
-    return li,k
-
-
+    return li
 
 def wildtype_FBA(obj,wildtype:bool=True,mutant:bool=False)->FBA:
     LB_wt = copy.deepcopy(obj.LB)

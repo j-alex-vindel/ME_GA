@@ -13,7 +13,6 @@ class GA_Utils:
         self.mutation_rate = mutation_rate
     
 
-    @func_name_print    
     def create_pop(self):
         population = GA_Pop()
         print(f"Initial Population with # {self.num_ind} individuals")
@@ -23,7 +22,6 @@ class GA_Utils:
             population.append(individual)
         return population
     
-    @func_name_print
     def fast_nondom_sort(self,population):
         population.fronts = [[]]
 
@@ -54,7 +52,6 @@ class GA_Utils:
             i = i + 1
             population.fronts.append(temp)
 
-    @func_name_print
     def crowding_dist(self,front):
         if len(front) > 0:
             solutions_num = len(front)
@@ -78,14 +75,14 @@ class GA_Utils:
         else:
             return -1
         
-    @func_name_print
+
     def create_children(self,population):
         children = []
         for individual in population:
             print(f"Cost = {individual.cost}")
             print(f"ys = {sum(individual.Gene)}")
             print(f"rank = {individual.rank}")
-            print(f"y index = {individual.genindex}")
+
 
         while len(children) < len(population):
             print(f"Beggining tournament {len(children)} < {len(population)}")
