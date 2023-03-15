@@ -8,10 +8,13 @@ import random
 FBA = NewType('FBA_vector',List[float])
 
 
-def set_constructor(list:List[str]) -> List[int]:
-    if list != None:
-        return [i for i in range(len(list))]
-
+def func_name_print(f):
+    name = f.__name__
+    def wrapper(*args,**kwargs):
+        print(f"{' '*2}Running >> {name}")
+        v = f(*args,**kwargs)
+        return v
+    return wrapper
 
 def func_timer(f):
     def wrapper(*args,**kwargs):
@@ -34,9 +37,14 @@ def genecheck(f):
         return v
     return wrapper
 
-@genecheck
+
+def set_constructor(list:List[str]) -> List[int]:
+    if list != None:
+        return [i for i in range(len(list))]
+
+
 def gene_generator(network,k):
-    rk = [random.choice(network.KO) for i in range(k)]
+    rk = random.sample(network.KO,k) 
     li = [0 if i in rk else 1 for i in network.M]
     return li,k
 

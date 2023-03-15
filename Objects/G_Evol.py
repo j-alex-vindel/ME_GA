@@ -1,16 +1,18 @@
 from G_Utils import GA_Utils
 from G_Pop import GA_Pop
 from tqdm import tqdm
+from utility_functions import func_name_print
 
 class GA_Evol:
 
-    def __init__(self,problem, num_gen=100, num_ind=100, num_par_tour=2,tour_prob=.9,mutation_rate=1):
+    def __init__(self,problem, num_gen=100, num_ind=30, num_par_tour=2,tour_prob=.9,mutation_rate=1):
         self.utils = GA_Utils(problem=problem, num_ind=num_ind,num_par_tour=num_par_tour,tour_prob=tour_prob,mutation_rate=mutation_rate)
         self.population = None
         self.num_gen = num_gen
         self.on_gen_finished = []
         self.num_ind = num_ind
 
+    @func_name_print
     def evol(self):
         self.population = self.utils.create_pop()
         self.utils.fast_nondom_sort(self.population)

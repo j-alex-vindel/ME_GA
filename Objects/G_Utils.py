@@ -1,25 +1,29 @@
 from G_Pop import GA_Pop
 import random
 import copy
+from utility_functions import func_name_print
 
 class GA_Utils:
 
-    def __init__(self,problem,num_ind=100,num_par_tour=2,tour_prob=.9,mutation_rate=1):
+    def __init__(self,problem,num_ind=30,num_par_tour=2,tour_prob=.9,mutation_rate=1):
         self.num_ind = num_ind
         self.problem = problem
         self.num_par_tour = num_par_tour
         self.tour_prob = tour_prob
         self.mutation_rate = mutation_rate
-        pass
+    
 
+    @func_name_print    
     def create_pop(self):
         population = GA_Pop()
+        print(f"Initial Population with # {self.num_ind} individuals")
         for _ in range(self.num_ind):
             individual = self.problem.generate_individual()
             self.problem.calc_obj(individual)
             population.append(individual)
         return population
     
+    @func_name_print
     def fast_nondom_sort(self,population):
         population.fronts = [[]]
 
@@ -50,6 +54,7 @@ class GA_Utils:
             i = i + 1
             population.fronts.append(temp)
 
+    @func_name_print
     def crowding_dist(self,front):
         if len(front) > 0:
             solutions_num = len(front)
@@ -72,22 +77,36 @@ class GA_Utils:
             return 1
         else:
             return -1
-
+        
+    @func_name_print
     def create_children(self,population):
         children = []
+        for individual in population:
+            print(f"Cost = {individual.cost}")
+            print(f"ys = {sum(individual.Gene)}")
+            print(f"rank = {individual.rank}")
+            print(f"y index = {individual.genindex}")
+
         while len(children) < len(population):
+            print(f"Beggining tournament {len(children)} < {len(population)}")
             parent1 = self.__tournament(population)
             parent2 = parent1
+            print(f"parent 1 gene {parent1.geneindex}")
             while parent1 == parent2:
                 parent2 = self.__tournament(population)
+                print(f"parent 2 gene {parent2.geneindex}")
+            print(f"{' '*3}>> crosoover")
             child1,child2 = self.__crossover(parent1,parent2)
-
+            
+            print(f"{' '*3}>> mutate")
             self.__mutate(child1)
             self.__mutate(child2)
             # check conditions
+            print(f"{' '*3}>> gene check")
             self.__gencheck(child1)
             self.__gencheck(child2)
-
+            
+            print(f"{' '*3}>> Calc_objectives")
             self.problem.calc_obj(child1)
             self.problem.calc_obj(child2)
             children.append(child1)
@@ -97,13 +116,15 @@ class GA_Utils:
 
     def __crossover(self,individual1,individual2):
         length = len(individual1.Gene)
-        c1 = copy.deepcopy(individual1)
-        c2 = copy.deepcopy(individual2)
+        child1 = self.problem.generate_individual()
+        child2 = self.problem.generate_individual()
 
-        uni_alpha = [random.randint(0,1) for _ in range(length)]
-        c1.Gene = [uni_alpha[i]*individual1.Gene[i] + (1-uni_alpha[i])*individual2.Gene[i] for i in range(length)]
-        c2.Gene = [(1-uni_alpha[i]*individual1.Gene[i]) + uni_alpha[i]*individual2.Gene[i] for i in range(length)]
-        return c1,c2
+        ua = [random.randint(0,1) for _ in range(length)]
+        for i in range(length):
+            child1.Gene[i] = ua[i]*child1.Gene[i] + (1-ua[i])*child2.Gene[i]
+            child2.Gene[i] = ua[i]*child2.Gene[i] + (1-ua[i])*child1.Gene[i]
+        
+        return child1,child2
 
     def __tournament(self,population):
         participants = random.sample(population.population,self.num_par_tour)
@@ -114,22 +135,21 @@ class GA_Utils:
                 best = participant
         return participant
                             
-
-    def __mutate(self,child):
-        mc = copy.deepcopy(child)
-
+    def __mutate(self,child):        
         mutation_index = [random.choice(self.problem.metnet.M) for _ in range(self.mutation_rate)]
-        m_gene = [child.Gene[i] if i not in mutation_index else 1-child.Gene[i] for i in self.problem.metnet.M]
-        mc.Gene = m_gene
-        return mc
-
+        for i,gene in enumerate(child.Gene):
+            if i not in mutation_index:
+                child.Gene[i] = gene
+            else:
+                child.Gene[i] = 1-gene
+    
     def __gencheck(self,child):
-        m_child = copy.deepcopy(child)
-        if sum(m_child.Gene) != len(m_child.Gene) - self.problem.K:
+        
+        if sum(child.Gene) != len(child.Gene) - self.problem.K:
             rk = [random.choice(self.problem.metnet.M) for _ in range(self.problem.K)]
             li = [0 if i in rk else 1 for i in self.problem.metnet.M]
-            m_child.Gene = li
-        return m_child
+            child.Gene = li
+    
         
     def __choose_w_prob(self,prob):
         if random.random() <= prob:
