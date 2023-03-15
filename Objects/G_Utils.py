@@ -42,9 +42,9 @@ class GA_Utils:
             temp = []
             for individual in population.fronts[i]:
                 for other_individual in individual.dominated_solutions:
-                    other_individual.domination_count -= 1
+                    other_individual.dominated_count -= 1
 
-                    if other_individual.domination_count == 0:
+                    if other_individual.dominated_count == 0:
                         other_individual.rank = i+1
                         temp.append(other_individual)
             i = i + 1
@@ -68,7 +68,7 @@ class GA_Utils:
     
     def crowding_opr(self,individual, other_individual):
         if (individual.rank < other_individual.rank) or \
-            ((individual.rank == other_individual.ranks) and (individual.crowding_distance > other_individual.crowding_distance)):
+            ((individual.rank == other_individual.rank) and (individual.crowding_distance > other_individual.crowding_distance)):
             return 1
         else:
             return -1
@@ -132,6 +132,6 @@ class GA_Utils:
         return m_child
         
     def __choose_w_prob(self,prob):
-        if random.random <= prob:
+        if random.random() <= prob:
             return True
         return False

@@ -18,6 +18,7 @@ class GA_Ind(object):
         self.dominated_count:int = None
         self.biomass:float = None
         self.chemical:float = None
+        self.features = None
     
     @property
     def objectives(self):
