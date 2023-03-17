@@ -78,20 +78,10 @@ class GA_Utils:
 
     def create_children(self,population):
         children = []
-        for individual in population:
-            print(f"Cost = {individual.cost}")
-            print(f"ys = {sum(individual.Gene)}")
-            print(f"rank = {individual.rank}")
-
-
         while len(children) < len(population):
             print(f"Beggining tournament {len(children)} < {len(population)}")
-            parent1 = self.__tournament(population)
-            parent2 = parent1
-            print(f"parent 1 gene {parent1.geneindex}")
-            while parent1 == parent2:
-                parent2 = self.__tournament(population)
-                print(f"parent 2 gene {parent2.geneindex}")
+            parent1,parent2 = self.__randomparent(population)
+         
             print(f"{' '*3}>> crosoover")
             child1,child2 = self.__crossover(parent1,parent2)
             
@@ -118,8 +108,8 @@ class GA_Utils:
 
         ua = [random.randint(0,1) for _ in range(length)]
         for i in range(length):
-            child1.Gene[i] = ua[i]*child1.Gene[i] + (1-ua[i])*child2.Gene[i]
-            child2.Gene[i] = ua[i]*child2.Gene[i] + (1-ua[i])*child1.Gene[i]
+            child1.Gene[i] = ua[i]*individual1.Gene[i] + (1-ua[i])*individual2.Gene[i]
+            child2.Gene[i] = ua[i]*individual2.Gene[i] + (1-ua[i])*individual1.Gene[i]
         
         return child1,child2
 
@@ -131,6 +121,10 @@ class GA_Utils:
                 self.crowding_opr(participant,best) == 1 and self.__choose_w_prob(self.tour_prob)):
                 best = participant
         return participant
+
+    def __randomparent(self,population):
+        parents = random.sample(population.population,self.num_par_tour)
+        return parents[0],parents[1]
                             
     def __mutate(self,child):        
         mutation_index = [random.choice(self.problem.metnet.M) for _ in range(self.mutation_rate)]

@@ -33,6 +33,8 @@ class GA_Ind(object):
     def gene_index(self):
         if self.Gene != None:
             self._index = [i for i,gene in enumerate(self.Gene) if gene == 0]
+        else:
+            return None
         return self._index
 
     def __eq__(self, other):
