@@ -22,6 +22,7 @@ def MILP_Model(network:MN=None) -> Model:
     m = gp.Model("Single_Level_Reformulation")
     #Variables
     v = m.addVars(network.M,lb=-GRB.INFINITY,ub=GRB.INFINITY,vtype=GRB.CONTINUOUS,name='v')
+    vs = [v[i] for i in network.M]
     # Dual Variables
     l = m.addVars(network.N,lb=-GRB.INFINITY,ub=GRB.INFINITY,vtype=GRB.CONTINUOUS,name='l')
     a1 = m.addVars(network.M,lb=0,ub=GRB.INFINITY,vtype=GRB.CONTINUOUS,name='a1')
@@ -35,7 +36,7 @@ def MILP_Model(network:MN=None) -> Model:
     m.setObjective((1*v[network.chemical]),GRB.MAXIMIZE)
     # Constraints
     # Stoichimetric Constrs
-    m.addMConstr(network.S,v,'=',network.b,name='S')
+    m.addMConstr(network.S,vs,'=',network.b,name='S')
     
     # Dual Objective
     m.addConstr((v[network.biomass] >= (sum(a1[j]*network.UB[j] - b1[j]*network.LB[j] for j in network.M)
@@ -122,7 +123,7 @@ def MILP_Solve(network:MN=None,y:Y=None,model:Model=None) -> Result:
     chem = vs[network.chemical]
     biom = vs[network.biomass]
     
-    return  biom,chem
+    return  -biom,-chem
     
     
 def flux_balance_analysis(obj:MN) -> Vector:

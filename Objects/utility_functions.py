@@ -63,9 +63,10 @@ def wildtype_FBA(obj,wildtype:bool=True,mutant:bool=False)->FBA:
 
     wt = gp.Model()
     v_wt = wt.addVars(obj.M, lb=-GRB.INFINITY, ub=GRB.INFINITY, vtype=GRB.CONTINUOUS, name='v_wt')
+    v_wts = [v_wt[i] for i in obj.M]
     
     wt.setObjective(1*v_wt[objective],GRB.MAXIMIZE)
-    wt.addMConstr(obj.S,v_wt,'=',obj.b,name='Stoi')
+    wt.addMConstr(obj.S,v_wts,'=',obj.b,name='Stoi')
     wt.addConstrs((LB_wt[j] <= v_wt[j] for j in obj.M), name='LBwt')
     wt.addConstrs((UB_wt[j] >= v_wt[j] for j in obj.M), name='UBwt')
     if FVA:
