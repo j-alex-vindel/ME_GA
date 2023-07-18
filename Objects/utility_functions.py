@@ -4,6 +4,7 @@ import gurobipy as gp
 from gurobipy import GRB
 import copy
 import random
+import pandas as pd
 
 FBA = NewType('FBA_vector',List[float])
 
@@ -47,6 +48,43 @@ def gene_generator(network=None,k:int=None):
     rk = random.sample(network.KO,k) 
     li = [0 if i in rk else 1 for i in network.M]
     return li
+
+def gene2name(network=None,gene:List[int]=None) -> List[str]:
+
+    strat = [network.Rxn[i] for i in network.M if gene[i]<.5]
+
+    return strat
+
+def save2df(population=None,network=None,write:bool=False):
+    calc = {
+        "Bio":[],
+        "Che":[],
+        "Strat":[],
+        "Front":[],
+        "Strain":[],
+        "K":[]
+    }
+    for index,front in enumerate(population):
+        for ele in front:
+            bio = ele.biomass*-1
+            che = ele.chemical*-1
+            strat = gene2name(network=network,gene=ele.Gene)
+            
+            calc['Bio'].append(bio)
+            calc['Che'].append(che)
+            calc['Front'].append(index)
+            calc['Strain'].append(network.Name[:3])
+            calc['K'].append(len(strat))
+            calc['Strat'].append(strat)
+   
+    df = pd.DataFrame.from_dict(calc)
+
+    if write:
+        df.to_csv(f"../Results/GA{network.Name[:3]}_P{len(df)}.csv")
+        print(f"File saved!")
+    
+    print(df.head(5))
+    return calc
 
 def wildtype_FBA(obj,wildtype:bool=True,mutant:bool=False)->FBA:
     LB_wt = copy.deepcopy(obj.LB)

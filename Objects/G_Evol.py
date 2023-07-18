@@ -22,7 +22,7 @@ class GA_Evol:
         returned_population = None
 
         for i in tqdm(range(self.num_gen)):
-            print(f"\n*** Generation: {i+1}/{self.num_gen}")
+       
             self.population.extend(children)
             self.utils.fast_nondom_sort(self.population)
             new_population = GA_Pop()
@@ -42,4 +42,4 @@ class GA_Evol:
                 self.utils.crowding_dist(front)
             children = self.utils.create_children(self.population)
         
-        return returned_population.fronts[0]
+        return returned_population.fronts

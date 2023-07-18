@@ -22,7 +22,7 @@ class GA_Ind(object):
     
     @property
     def objectives(self):
-        self._objectives = [self.chemical,self.biomass]
+        self._objectives = [self.biomass,self.chemical]
         return self._objectives
     @property
     def cost(self):

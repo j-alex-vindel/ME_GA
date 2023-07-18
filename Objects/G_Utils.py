@@ -15,7 +15,7 @@ class GA_Utils:
 
     def create_pop(self):
         population = GA_Pop()
-        print(f"Initial Population with # {self.num_ind} individuals")
+        # print(f"Initial Population with # {self.num_ind} individuals")
         for _ in range(self.num_ind):
             individual = self.problem.generate_individual()
             self.problem.calc_obj(individual)
@@ -79,21 +79,21 @@ class GA_Utils:
     def create_children(self,population):
         children = []
         while len(children) < len(population):
-            print(f"Beggining tournament {len(children)} < {len(population)}")
+            # print(f"Beggining tournament {len(children)} < {len(population)}")
             parent1,parent2 = self.__randomparent(population)
          
-            print(f"{' '*3}>> crosoover")
+            # print(f"{' '*3}>> crosoover")
             child1,child2 = self.__crossover(parent1,parent2)
             
-            print(f"{' '*3}>> mutate")
+            # print(f"{' '*3}>> mutate")
             self.__mutate(child1)
             self.__mutate(child2)
             # check conditions
-            print(f"{' '*3}>> gene check")
+            # print(f"{' '*3}>> gene check")
             self.__gencheck(child1)
             self.__gencheck(child2)
             
-            print(f"{' '*3}>> Calc_objectives")
+            # print(f"{' '*3}>> Calc_objectives")
             self.problem.calc_obj(child1)
             self.problem.calc_obj(child2)
             children.append(child1)
