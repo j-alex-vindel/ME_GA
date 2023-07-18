@@ -9,8 +9,9 @@ def run_all(*args,sleep:int=None,file:str=None):
 
 if __name__ == "__main__":
     file = 'experiment'
-    strain = 'ijr'
-    numgen = 6
-    numind = 5
+    strains = ['ijr','ijo','iaf']
+    numgen = 50
+    numind = 100
     towrite = 'y'
-    run_all(strain,numgen,numind,towrite,sleep=5,file=file,)
+    for strain in strains:
+        run_all(strain,numgen,numind,towrite,sleep=50,file=file)

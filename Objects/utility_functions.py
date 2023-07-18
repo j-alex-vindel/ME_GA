@@ -55,7 +55,7 @@ def gene2name(network=None,gene:List[int]=None) -> List[str]:
 
     return strat
 
-def save2df(population=None,network=None,write:bool=False):
+def save2df(population=None,network=None,write:bool=False,gens:int=None,inds:int=None):
     calc = {
         "Bio":[],
         "Che":[],
@@ -80,11 +80,17 @@ def save2df(population=None,network=None,write:bool=False):
     df = pd.DataFrame.from_dict(calc)
 
     if write:
-        df.to_csv(f"../Results/GA{network.Name[:3]}_P{len(df)}.csv")
+        df.to_csv(f"../Results/GA{network.Name[:3]}_G{gens}_I{inds}.csv")
         print(f"File saved!")
     
     print(df.head(5))
     return calc
+
+def towrite(text:str=None) -> bool:
+    if text in ['y','Y']:
+        return True
+    else:
+        return False 
 
 def wildtype_FBA(obj,wildtype:bool=True,mutant:bool=False)->FBA:
     LB_wt = copy.deepcopy(obj.LB)
