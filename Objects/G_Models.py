@@ -126,6 +126,71 @@ def MILP_Solve(network:MN=None,y:Y=None,model:Model=None) -> Result:
     
     return  -biom,-chem
     
+
+
+def So_Model(network:MN=None) -> Model:
+    ''' 
+       Returns a model object ready to be solved
+    ''' 
+    m = gp.Model("Single_Level_Reformulation")
+    #Variables
+    v = m.addVars(network.M,lb=-GRB.INFINITY,ub=GRB.INFINITY,vtype=GRB.CONTINUOUS,name='v')
+    vs = [v[i] for i in network.M]
+    
+    # Objective
+    m.setObjective((v[network.biomass]+v[network.chemical]),GRB.MAXIMIZE)
+    # Constraints
+    # Stoichimetric Constrs
+    m.addMConstr(network.S,vs,'=',network.b,name='S')
+
+    #m.addConstr(v[network.biomass] >= network.minprod, name='min_growth')
+
+    m.update()
+
+    model = m.copy()
+
+    return model
+
+def So_Solve(network:MN=None,y:Y=None,model:Model=None) -> Result:
+    v = [model.getVarByName('v[%s]'%a) for a in network.M]
+    # Bounds
+    model.addConstrs((network.LB[j]*y[j] <= v[j] for j in network.M), name='LB')
+    model.addConstrs((v[j] <= network.UB[j]*y[j] for j in network.M), name='UB')
+
+    model.addConstrs((network.LB[j] <= v[j] for j in network.M),name='lb')
+    model.addConstrs((v[j] <= network.UB[j] for j in network.M),name='ub')
+
+    # Add Parameters
+    model.Params.OptimalityTol = network.infeas
+    model.Params.IntFeasTol = network.infeas
+    model.Params.FeasibilityTol = network.infeas
+    model.Params.NodefileStart = 0.5
+    # model.Params.Presolve = 0
+    model.Params.OutputFlag = 0
+    model.update()
+    model.optimize()
+
+    if model.status == GRB.OPTIMAL:
+            chem = model.getObjective().getValue()
+            vs = [model.getVarByName('v[%d]'%j).x for j in network.M]
+
+    elif model.status == GRB.TIME_LIMIT:
+        vs = [model.getVarByName('v[%d]'%j).x for j in network.M]
+    
+    if model.status in (GRB.INFEASIBLE,GRB.INF_OR_UNBD,GRB.UNBOUNDED):
+        # print('Model status: *** INFEASIBLE or UNBOUNDED ***')
+        vs = [-200 for i in network.M]
+        
+    cost = vs[network.chemical] + vs[network.biomass]
+    chem = vs[network.chemical]
+    biom = vs[network.biomass]
+    
+    return  -biom,-chem
+
+
+# -------------------------------------------- Probably Unused Functions -----------------------------
+
+
     
 def flux_balance_analysis(obj:MN) -> Vector:
     LB_WT = obj.LB.copy()

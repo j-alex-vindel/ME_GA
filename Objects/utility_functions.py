@@ -55,7 +55,7 @@ def gene2name(network=None,gene:List[int]=None) -> List[str]:
 
     return strat
 
-def save2df(population=None,network=None,write:bool=False,gens:int=None,inds:int=None):
+def save2df(population=None,network=None,write:bool=False,gens:int=None,inds:int=None,prefix:str='M'):
     calc = {
         "Bio":[],
         "Che":[],
@@ -76,11 +76,12 @@ def save2df(population=None,network=None,write:bool=False,gens:int=None,inds:int
             calc['Strain'].append(network.Name[:3])
             calc['K'].append(len(strat))
             calc['Strat'].append(strat)
+
    
     df = pd.DataFrame.from_dict(calc)
 
     if write:
-        df.to_csv(f"../Results/GA{network.Name[:3]}_G{gens}_I{inds}.csv")
+        df.to_csv(f"../Results/GA{network.Name[:3]}_{prefix}_G{gens}_I{inds}_{network.target*100}.csv")
         print(f"File saved!")
     
     print(df.head(5))
